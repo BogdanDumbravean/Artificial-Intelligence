@@ -5,6 +5,14 @@ Created on Sat Feb 29 19:30:22 2020
 @author: Bogdan
 """
 
+'''
+Ex:
+ANA+
+LEA=
+---
+TARE
+'''
+
 import numpy as np
 
 
