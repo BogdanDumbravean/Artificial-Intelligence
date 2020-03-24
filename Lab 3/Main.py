@@ -5,6 +5,11 @@ Created on Tue Mar 10 14:23:27 2020
 @author: Bogdan
 """
 
+'''
+Use Hill Climbing, Evolutionary Algorithm and Particle Swarm Optimisation to solve the problem
+Problem: Euler Square
+'''
+
 from GUI import GUI
 from Repository import Repository
 from Controller import Controller
