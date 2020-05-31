@@ -1,0 +1,93 @@
+I solved the first problem(the sprinkler one) using the Sugeno model.
+
+Initialization:
+    On initialization, the repository reads and process the data from the files 'problem.in' and 'input.in'.
+    In 'problem.in' I have the following structure:
+        For each of the three descriptions (temperature, humidity, time):
+            - number of regions
+            For each region:
+                - name
+                - values (for the edges of the charts, I used the value 1000)
+                There are rows with different number of values:
+                * 3 values for a triangular region
+                * 4 values for a trapezoidal region
+                * 5 values for a triangular region and a line for the defuzzification function
+                * 6 values for a triangular region and a triangle for the defuzzification function
+            - number of rules
+            For each rule:
+                - a dictionary for inputs and a dictionary for output separated by ';'
+
+    In 'input.in' I have the following structure:
+        - number of inputs
+        For each input:
+            - humidity and temperature values separated by space
+
+    I have a class for descriptions and one for rules. 
+    In the FuzzyDescription class I have a dictionary with region functions and one with inverse functions for each region.
+    In the FuzzyRule class I have two dictionaries read from the 'problem.in' file (inputs and output).
+
+    There are three descriptions: for temperature, humidity and time.
+    Temperature can take the values: 'very cold', 'cold', 'normal', 'warm', 'hot'.
+    Humidity can take the values: 'wet', 'normal', 'dry'.
+    Time can take the values: 'short', 'medium', 'long'.
+
+
+After reading and processing the data, I set the descriptions and rules in the controller.
+What follows is to go through all the inputs from 'input.in' and process the data.
+
+Computation:
+    For each set of inputs I have the following steps:
+
+    I take the input as { 'humidity': humidity_value, 'temperature': temperature_value }
+    I use the functions from the FuzzyDescription class for both of the inputs. 
+    Then I evaluate the rules with the fuzzified values for all combinations of the conditions (make an 'AND' on the two conditions) 
+    and take only values different from 0.
+    Lastly, the defuzzification follows, using the defuzzification functions to take the values from the graph and compute the COA.
+
+
+Computation Steps:
+    humidity: 10, temperature: 30
+        view.compute -> controller.compute
+        - fuzzy_vals - call fuzzification function from the FuzzyDescription class
+            => {'humidity': {'dry': 0, 'normal': 0.5, 'wet': 0.5}, 
+            'temperature': {'very cold': 0, 'cold': 0, 'normal': 0, 'warm': 1.0, 'hot': 0}}
+
+        - rule_vals - take only values different from 0 after evaluating the rules
+            => [[{'time': 'short'}, 0.5], [{'time': 'medium'}, 0.5]]
+            
+        - fuzzy_out_vars - take only the result in a better format
+            => [('short', 0.5), ('medium', 0.5)]
+
+        I defuzzify the results then multiply with the weight (0.5 in both cases)
+            ('short', 0.5) => 25.0 * 0.5 => 12.5
+            ('medium', 0.5) => 50.0 * 0.5 => 25
+
+        Then calculate the COA: (12.5 + 25)/(0.5 + 0.5) = 37.5
+        Final answer = 37.5
+
+
+    humidity: 65, temperature: 17
+        view.compute -> controller.compute
+        - fuzzy_vals - call fuzzification function from the FuzzyDescription class
+            => {'humidity': {'dry': 0, 'normal': 0.7, 'wet': 0.3}, 
+            'temperature': {'very cold': 0, 'cold': 0, 'normal': 0.6, 'warm': 0.4, 'hot': 0}}
+
+        - rule_vals - take only values different from 0 after evaluating the rules
+            => [[{'time': 'short'}, 0.3], [{'time': 'short'}, 0.3], [{'time': 'medium'}, 0.6], [{'time': 'medium'}, 0.4]]
+
+        - fuzzy_out_vars - take only the result in a better format
+            => [('short', 0.3), ('short', 0.3), ('medium', 0.6), ('medium', 0.4)]
+
+        I defuzzify the results then multiply with the weight 
+            ('short', 0.3) => 35.0 * 0.3 => 10.5
+            ('short', 0.3) => 35.0 * 0.3 => 10.5
+            ('medium', 0.6) => 50.0 * 0.6 => 30
+            ('medium', 0.4) => 50.0 * 0.4 => 20
+        Then calculate the COA: (10.5 + 10.5 + 30 + 20)/(0.3 + 0.3 + 0.6 + 0.4) = 71.0 / 1.6 = 44.375
+        Final answer = 44.375
+
+
+
+
+
+
